@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("tips") {
-                        TipsScreen(navController)
+                        Tipsscreen(navController)
                     }
 
                     composable("report") {

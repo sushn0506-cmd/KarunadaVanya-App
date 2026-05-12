@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun TipsScreen(navController: NavController) {
+fun Tipsscreen(navController: NavController) {
 
-    val tips = listOf(
+    val safetyTips = listOf(
         "Do not enter forest areas alone.",
         "Avoid going outside during wildlife alerts.",
         "Keep emergency contact numbers ready.",
@@ -24,10 +24,41 @@ fun TipsScreen(navController: NavController) {
     )
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
 
-        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Safety Tips",
+            fontSize = 26.sp
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        LazyColumn(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            items(safetyTips) { tip ->
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE3F2FD)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+
+                    Text(
+                        text = tip,
+                        modifier = Modifier.padding(20.dp),
+                        fontSize = 18.sp
+                    )
+                }
+            }
+        }
 
         Button(
             onClick = {
@@ -38,42 +69,13 @@ fun TipsScreen(navController: NavController) {
             ),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .width(160.dp)
-                .height(55.dp)
+                .padding(bottom = 10.dp)
         ) {
 
             Text(
                 text = "Back",
-                color = Color.White,
-                fontSize = 18.sp
+                color = Color.White
             )
-        }
-
-        Text(
-            text = "Safety Tips",
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        LazyColumn {
-
-            items(tips) { tip ->
-
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE3F2FD)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                ) {
-
-                    Text(
-                        text = tip,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
         }
     }
 }

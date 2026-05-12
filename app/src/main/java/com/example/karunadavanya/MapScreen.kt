@@ -1,9 +1,10 @@
 package com.example.karunadavanya
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -20,21 +21,50 @@ fun MapScreen(navController: NavController) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             wildlifeLocation,
-            10f
+            12f
         )
     }
 
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
 
-        Marker(
-            state = MarkerState(
-                position = wildlifeLocation
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = true,
+                zoomGesturesEnabled = true,
+                scrollGesturesEnabled = true,
+                tiltGesturesEnabled = true,
+                rotationGesturesEnabled = true
+            )
+        ) {
+
+            Marker(
+                state = MarkerState(
+                    position = wildlifeLocation
+                ),
+                title = "Wildlife Sighting",
+                snippet = "Reported Area"
+            )
+        }
+
+        Button(
+            onClick = {
+                navController.popBackStack()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = androidx.compose.ui.graphics.Color(0xFF5C6BC0)
             ),
-            title = "Wildlife Sighting",
-            snippet = "Reported Area"
-        )
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+
+            Text(
+                text = "Back",
+                color = androidx.compose.ui.graphics.Color.White
+            )
+        }
     }
 }

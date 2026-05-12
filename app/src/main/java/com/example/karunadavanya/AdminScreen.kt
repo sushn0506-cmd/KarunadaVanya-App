@@ -39,7 +39,11 @@ fun AdminScreen(navController: NavController) {
 
                     if (report != null) {
 
-                        reportList.add(report)
+                        val updatedReport = report.copy(
+                            id = reportSnapshot.key ?: ""
+                        )
+
+                        reportList.add(updatedReport)
                     }
                 }
             }

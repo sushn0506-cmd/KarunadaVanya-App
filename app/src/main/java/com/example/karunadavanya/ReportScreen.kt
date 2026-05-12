@@ -3,6 +3,9 @@ package com.example.karunadavanya
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Location
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,13 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @SuppressLint("MissingPermission")
 
@@ -26,13 +28,32 @@ import java.util.Locale
 fun ReportScreen(navController: NavController) {
 
     var animal by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
+    var locationText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
     val fusedLocationClient =
         LocationServices.getFusedLocationProviderClient(context)
+
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+
+            if (isGranted) {
+
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+
+                        if (location != null) {
+
+                            locationText =
+                                "Lat: ${location.latitude}, Lng: ${location.longitude}"
+                        }
+                    }
+            }
+        }
 
     val database = FirebaseDatabase.getInstance()
     val reportsRef = database.getReference("WildlifeReports")
@@ -66,9 +87,9 @@ fun ReportScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = location,
+            value = locationText,
             onValueChange = {
-                location = it
+                locationText = it
             },
             label = {
                 Text("Location")
@@ -80,22 +101,30 @@ fun ReportScreen(navController: NavController) {
         Button(
             onClick = {
 
-                if (
-                    ActivityCompat.checkSelfPermission(
+                when {
+
+                    ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
+                    ) == PackageManager.PERMISSION_GRANTED -> {
 
-                    fusedLocationClient.lastLocation
-                        .addOnSuccessListener { loc ->
+                        fusedLocationClient.lastLocation
+                            .addOnSuccessListener { location: Location? ->
 
-                            if (loc != null) {
+                                if (location != null) {
 
-                                location =
-                                    "Lat: ${loc.latitude}, Lng: ${loc.longitude}"
+                                    locationText =
+                                        "Lat: ${location.latitude}, Lng: ${location.longitude}"
+                                }
                             }
-                        }
+                    }
+
+                    else -> {
+
+                        locationPermissionLauncher.launch(
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        )
+                    }
                 }
             },
             colors = ButtonDefaults.buttonColors(
@@ -125,7 +154,7 @@ fun ReportScreen(navController: NavController) {
                 val reportData = mapOf(
                     "id" to reportId,
                     "animal" to animal,
-                    "location" to location,
+                    "location" to locationText,
                     "time" to currentTime
                 )
 
@@ -138,7 +167,7 @@ fun ReportScreen(navController: NavController) {
                             message = "Report Submitted Successfully!"
 
                             animal = ""
-                            location = ""
+                            locationText = ""
                         }
                         .addOnFailureListener {
 
